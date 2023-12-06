@@ -8,9 +8,11 @@ from .models import CustomUser
 from .utils import calc_token_exp
 from django.conf import settings
 
+from .permissions import IsUnauthenticated
+
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsUnauthenticated])
 def handle_login(request):
     email = request.data.get("email")
     password = request.data.get("password")
@@ -78,9 +80,9 @@ def handle_login(request):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def handle_token_refresh(request):
-    token = request.data.get("refresh_token")
-
     try:
+        token = request.data.get("refresh")
+
         refresh = RefreshToken(token)
 
         refresh_token = str(refresh)
@@ -97,18 +99,19 @@ def handle_token_refresh(request):
         response.set_cookie(
             key="access_token",
             value=access_token,
-            httponly=True,
+            httponly=False,
             secure=True,
             samesite="Strict",
+            path="/",
             expires=access_token_exp,
         )
-
         response.set_cookie(
             key="refresh_token",
             value=refresh_token,
-            httponly=True,
+            httponly=False,
             secure=True,
             samesite="Strict",
+            path="/",
             expires=refresh_token_exp,
         )
 

@@ -6,8 +6,7 @@ import { ToastAction } from "./components/ui/toast";
 import { useToast } from "./components/ui/use-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "react-query";
-import axios from "axios";
-import { baseWs } from "./axiosInstance";
+import axiosInstance, { baseWs } from "./axiosInstance";
 
 const Chats = () => {
   const [clientMessage, setClientMessage] = useState("");
@@ -54,10 +53,13 @@ const Chats = () => {
   const fetchChat = useQuery(
     ["chat/fetchChat", groupName],
     () =>
-      axios.get(`http://127.0.0.1:8000/api/chatapp/get-chats/${groupName}/`),
+      axiosInstance.get(
+        `http://127.0.0.1:8000/api/chatapp/get-chats/${groupName}/`
+      ),
     {
       enabled: true,
       retry: false,
+      refetchOnWindowFocus: false,
       onSuccess: (response) => {
         let chatMsgs = response.data.map((msg) => {
           return msg.content;

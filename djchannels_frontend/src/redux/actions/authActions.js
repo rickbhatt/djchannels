@@ -9,7 +9,6 @@ export const loginAction = createAsyncThunk(
         email: email,
         password: password,
       });
-      console.log(document.cookie.includes("refresh_token"));
       return response.data;
     } catch (error) {
       if (error.response) {

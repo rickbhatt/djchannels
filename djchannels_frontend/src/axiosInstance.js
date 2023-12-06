@@ -2,6 +2,8 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 import Cookies from "js-cookie";
+import store from "./redux/store/store";
+import { updateAuthState } from "./redux/slices/authSlice";
 
 export const baseURL = "http://127.0.0.1:8000/api";
 
@@ -56,14 +58,17 @@ axiosInstance.interceptors.request.use(async (req) => {
   */
 
   try {
-    const response = await axios.post(`${baseURL}/account/token/refresh/`, {
-      refresh: refreshToken,
-    });
+    const response = await axios.post(
+      `${baseURL}/account/token/refresh/`,
+      {
+        refresh: refreshToken,
+      },
+      { withCredentials: true }
+    );
 
-    if (response.status === 200) {
-      req.headers.Authorization = `Bearer ${Cookies.get("access_token")}`;
-      return req;
-    }
+    store.dispatch(updateAuthState());
+    req.headers.Authorization = `Bearer ${Cookies.get("access_token")}`;
+    return req;
   } catch (error) {
     console.log(error);
   }

@@ -22,7 +22,19 @@ const initialState = {
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    updateAuthState: (state, action) => {
+      try {
+        state.status = "success";
+        state.isAuthenticated = true;
+        state.refresh_token = Cookies.get("refresh_token");
+        state.access_token = Cookies.get("access_token");
+        state.error = null;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(loginAction.fulfilled, (state, action) => {
@@ -49,4 +61,5 @@ const authSlice = createSlice({
 export const getUser = (state) => state.auth.user;
 export const getAuthStatus = (state) => state.auth.isAuthenticated;
 
+export const { updateAuthState } = authSlice.actions;
 export default authSlice.reducer;

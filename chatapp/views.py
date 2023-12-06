@@ -7,9 +7,11 @@ from .serializers import AllChatsSerializer
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def get_chats(request, group_name):
     try:
+        print(request.user)
+
         chat_objs = Chat.objects.filter(group__name=group_name.lower())
         serialized_chats = AllChatsSerializer(chat_objs, many=True).data
         return Response(serialized_chats, status=status.HTTP_200_OK)
