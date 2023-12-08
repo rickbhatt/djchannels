@@ -7,8 +7,9 @@ import { useToast } from "./components/ui/use-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "react-query";
 import axiosInstance, { baseWs } from "./axiosInstance";
+import Chats from "./components/Chats";
 
-const Chats = () => {
+const ChatBox = () => {
   const [clientMessage, setClientMessage] = useState("");
   const [chatMessages, setChatMessages] = useState([]);
 
@@ -59,7 +60,7 @@ const Chats = () => {
     {
       enabled: true,
       retry: false,
-      // refetchOnWindowFocus: false,
+      refetchOnWindowFocus: false,
       onSuccess: (response) => {
         let chatMsgs = response.data.map((msg) => {
           return msg.content;
@@ -100,11 +101,14 @@ const Chats = () => {
   }, [lastJsonMessage]);
 
   return (
-    <div className="flex flex-col gap-5 w-96">
+    <div className="flex flex-col items-center py-8 gap-5 w-3/5 max-h-screen overflow-y-auto">
       <div className="flex">
         <h2 className="font-bold text-xl">Chatting in group: {groupName}</h2>
       </div>
-      <div className="flex gap-3">
+      <div className="flex flex-col gap-3  w-full overflow-y-auto ">
+        <Chats chatMessages={chatMessages} />
+      </div>
+      <div className="flex gap-3 w-full">
         <Input
           value={clientMessage}
           onChange={handleMessageChange}
@@ -115,19 +119,8 @@ const Chats = () => {
           Send Message
         </Button>
       </div>
-      <div className="flex flex-col gap-3">
-        {chatMessages?.length > 0 &&
-          chatMessages.map((msg, index) => (
-            <p
-              className="text-left bg-stone-100 p-3 rounded-md w-fit"
-              key={index}
-            >
-              {msg}
-            </p>
-          ))}
-      </div>
     </div>
   );
 };
 
-export default Chats;
+export default ChatBox;

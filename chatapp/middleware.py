@@ -13,6 +13,8 @@ class JWTAuthMiddleware(BaseMiddleware):
         if "access_token" in scope["cookies"]:
             access_token = scope["cookies"]["access_token"]
 
+            refresh_token = scope["cookies"]["refresh_token"]
+
             try:
                 decoded_acccess_token = jwt.decode(
                     access_token, secret_key, algorithms=["HS256"]
@@ -21,6 +23,11 @@ class JWTAuthMiddleware(BaseMiddleware):
                 user_obj = await get_user_by_id(decoded_acccess_token["user_id"])
 
                 scope["user"] = user_obj
+
+            except jwt.ExpiredSignatureError:
+                pass
+            except jwt.InvalidTokenError:
+                pass
 
             except Exception as e:
                 raise JWTAuthMiddlewareError(e)

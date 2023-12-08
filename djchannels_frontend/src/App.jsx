@@ -1,4 +1,3 @@
-import "./App.css";
 import { Helmet } from "react-helmet";
 import { Toaster } from "./components/ui/toaster";
 
@@ -11,7 +10,9 @@ function App() {
         <title>Chat App</title>
       </Helmet>
 
-      <Outlet />
+      <div className="flex justify-center">
+        <Outlet />
+      </div>
     </>
   );
 }
