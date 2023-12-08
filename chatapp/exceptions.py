@@ -1,0 +1,2 @@
+class JWTAuthMiddlewareError(Exception):
+    pass

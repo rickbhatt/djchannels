@@ -59,7 +59,7 @@ const Chats = () => {
     {
       enabled: true,
       retry: false,
-      refetchOnWindowFocus: false,
+      // refetchOnWindowFocus: false,
       onSuccess: (response) => {
         let chatMsgs = response.data.map((msg) => {
           return msg.content;

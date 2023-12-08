@@ -103,6 +103,8 @@ class ChatAsyncConsumer(AsyncConsumer):
 
         # self.send({"type": "websocket.send", "text": chat_message})
 
+        print(self.scope["user"].is_authenticated)
+
         """
         SENDING MESSAGE TO A GROUP SO THAT
         ALL THE CHANNELS IN THE GROUP RECEiVES
@@ -133,6 +135,11 @@ class ChatAsyncConsumer(AsyncConsumer):
         raise StopConsumer()
 
     async def chat_message(self, event):
+        """
+        this method handles the sending of message
+        to the group.
+        this is same as chat.message
+        """
         print(f"event from chat_message = {event}")
         # sending message to the group
         await self.send({"type": "websocket.send", "text": event["message"]})
