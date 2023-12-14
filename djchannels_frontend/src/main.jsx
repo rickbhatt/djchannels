@@ -18,7 +18,7 @@ import Login from "./Login.jsx";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
-      <Route path="login" element={<Login />} />
+      <Route index element={<Login />} />
       <Route path="select-group" element={<GroupSelection />} />
       <Route path="chat/:groupName" element={<ChatBox />} />
     </Route>

@@ -74,12 +74,14 @@ const ChatBox = () => {
     }
   );
 
-  const handleSendMessage = () => {
+  const handleSendMessage = (e) => {
     // sendMessage(clientMessage);
+    e.preventDefault();
     if (clientMessage !== "") {
       sendJsonMessage({
         message: clientMessage,
       });
+      setClientMessage("");
     } else {
       toast({
         variant: "destructive",
@@ -108,17 +110,15 @@ const ChatBox = () => {
       <div className="flex flex-col gap-3  w-full overflow-y-auto ">
         <Chats chatMessages={chatMessages} />
       </div>
-      <div className="flex gap-3 w-full">
+      <form onSubmit={handleSendMessage} className="flex gap-3 w-full">
         <Input
           value={clientMessage}
           onChange={handleMessageChange}
           type="text"
           placeholder="Enter message"
         />
-        <Button onClick={handleSendMessage} type="button">
-          Send Message
-        </Button>
-      </div>
+        <Button type="submit">Send Message</Button>
+      </form>
     </div>
   );
 };

@@ -19,7 +19,7 @@ const GroupSelection = () => {
         placeholder="Enter group name to join"
       />
       <Button asChild>
-        <Link to={`chat/${groupName}`}>Join Group</Link>
+        <Link to={`/chat/${groupName}`}>Join Group</Link>
       </Button>
     </div>
   );

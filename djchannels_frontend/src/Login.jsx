@@ -24,6 +24,7 @@ const Login = () => {
     const { email, password } = formData;
     try {
       let response = await dispatch(loginAction({ email, password })).unwrap();
+      navigate(`select-group`, { replace: true });
     } catch (error) {}
   };
 

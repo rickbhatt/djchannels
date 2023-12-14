@@ -9,13 +9,13 @@ export const loginAction = createAsyncThunk(
         email: email,
         password: password,
       });
-      return response.data;
+      return response;
     } catch (error) {
       if (error.response) {
         return rejectWithValue(error.response);
       }
 
-      rejectWithValue("Some problem with request");
+      return rejectWithValue("Some problem with request");
     }
   }
 );
