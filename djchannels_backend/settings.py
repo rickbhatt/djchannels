@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "chap_2.apps.Chap2Config",
     "chap_3.apps.Chap3Config",
     "chatapp.apps.ChatappConfig",
+    "genchatapp.apps.GenchatappConfig",
 ]
 
 MIDDLEWARE = [

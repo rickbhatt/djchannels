@@ -9,6 +9,7 @@ from chatapp.middleware import JWTAuthMiddleware
 import chap_2.routing
 import chap_3.routing
 import chatapp.routing
+import genchatapp.routing
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "djchannels_backend.settings")
 
@@ -21,6 +22,7 @@ application = ProtocolTypeRouter(
                     chap_2.routing.websocket_urlpatterns
                     + chap_3.routing.websocket_urlpatterns
                     + chatapp.routing.websocket_urlpatterns
+                    + genchatapp.routing.websocket_urlpatterns
                 )
             )
         ),

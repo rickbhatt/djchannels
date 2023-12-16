@@ -24,7 +24,7 @@ const ChatBox = () => {
   }
 
   const [socketUrl, setSocketUrl] = useState(
-    `${baseWs}/chatapp/async/${groupName}/`
+    `${baseWs}/genchatapp/async/${groupName}/`
   );
 
   const {
