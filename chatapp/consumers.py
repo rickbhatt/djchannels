@@ -99,8 +99,6 @@ class ChatAsyncConsumer(AsyncConsumer):
 
         user = self.scope["user"]
 
-        print(user)
-
         if user.is_authenticated:
             parsed_chat_message["user"] = user.user_name
 
