@@ -41,7 +41,9 @@ const ChatBox = () => {
     queryParams: {
       token: "jkdsakljsasaksdjshduhqhjsjdnasndjdnjsdknsd-rick",
     },
-    onMessage: (response) => {},
+    onMessage: (response) => {
+      // console.log(response);
+    },
     onClose: (e) => {
       // console.log(e);
     },
@@ -63,7 +65,7 @@ const ChatBox = () => {
       refetchOnWindowFocus: false,
       onSuccess: (response) => {
         let chatMsgs = response.data.map((msg) => {
-          return msg.content;
+          return msg;
         });
 
         setChatMessages(chatMsgs);
@@ -98,12 +100,12 @@ const ChatBox = () => {
 
   useEffect(() => {
     if (lastJsonMessage !== null) {
-      setChatMessages((prev) => [...prev, lastJsonMessage.message]);
+      setChatMessages((prev) => [...prev, lastJsonMessage]);
     }
   }, [lastJsonMessage]);
 
   return (
-    <div className="flex flex-col items-center p-8 gap-5 w-3/5 h-screen  max-h-screen overflow-y-auto">
+    <div className="flex flex-col items-center p-8 gap-5 w-3/5 h-screen overflow-y-auto">
       <div className="flex">
         <h2 className="font-bold text-xl">Chatting in group: {groupName}</h2>
       </div>

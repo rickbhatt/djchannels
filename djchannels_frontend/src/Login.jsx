@@ -1,14 +1,20 @@
 import { Button } from "./components/ui/button";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { Input } from "./components/ui/input";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { loginAction } from "./redux/actions/authActions";
+import { getAuthStatus } from "./redux/slices/authSlice";
 const Login = () => {
   const initialFormState = {
     email: "",
     password: "",
   };
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const authStatus = useSelector(getAuthStatus);
 
   const [formData, setFormData] = useState(initialFormState);
 
@@ -16,17 +22,18 @@ const Login = () => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { email, password } = formData;
     try {
       let response = await dispatch(loginAction({ email, password })).unwrap();
-      navigate(`select-group`, { replace: true });
+      navigate(`/select-group`);
     } catch (error) {}
   };
+
+  if (authStatus) {
+    return <Navigate to="/select-group" replace />;
+  }
 
   return (
     <div className="flex flex-col justify-center items-center h-screen gap-5 w-96">

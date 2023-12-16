@@ -6,10 +6,11 @@ const Chats = ({ chatMessages }) => {
       {!!chatMessages?.length &&
         chatMessages.map((msg, index) => (
           <p
-            className="text-left bg-stone-100 p-3 rounded-md w-fit"
+            className="flex flex-col text-left bg-stone-100 p-3 rounded-md w-fit"
             key={index}
           >
-            {msg}
+            <span className="font-semibold text-sm">{msg.user}</span>
+            {msg.message}
           </p>
         ))}
     </>

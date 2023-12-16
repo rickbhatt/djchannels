@@ -10,6 +10,8 @@ class JWTAuthMiddleware(BaseMiddleware):
     async def __call__(self, scope, receive, send):
         secret_key = settings.SECRET_KEY
 
+        print("middle ware working")
+
         if "access_token" in scope["cookies"]:
             access_token = scope["cookies"]["access_token"]
 

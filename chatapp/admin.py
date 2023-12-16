@@ -7,7 +7,7 @@ from .models import Chat, Group
 class ChatAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "content",
+        "user",
         "group",
         "timestamp",
     )

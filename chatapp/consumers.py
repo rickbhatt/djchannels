@@ -97,26 +97,37 @@ class ChatAsyncConsumer(AsyncConsumer):
 
         parsed_chat_message = json.loads(client_message)
 
-        print(self.scope["user"])
-        chat_obj = await handle_chat_storage(
-            self.group_obj, parsed_chat_message["message"]
-        )
+        user = self.scope["user"]
 
-        # self.send({"type": "websocket.send", "text": chat_message})
+        print(user)
 
-        """
-        SENDING MESSAGE TO A GROUP SO THAT
-        ALL THE CHANNELS IN THE GROUP RECEiVES
-        THE MESSAGE
-        """
+        if user.is_authenticated:
+            parsed_chat_message["user"] = user.user_name
 
-        await self.channel_layer.group_send(
-            self.group_name,
-            {
-                "type": "chat.message",  # event name
-                "message": client_message,
-            },
-        )
+            chat_obj = await handle_chat_storage(
+                self.group_obj, parsed_chat_message["message"], user
+            )
+
+            """
+            SENDING MESSAGE TO A GROUP SO THAT
+            ALL THE CHANNELS IN THE GROUP RECEiVES
+            THE MESSAGE
+            """
+
+            await self.channel_layer.group_send(
+                self.group_name,
+                {
+                    "type": "chat.message",  # event name
+                    "message": json.dumps(parsed_chat_message),
+                },
+            )
+        else:
+            await self.send(
+                {
+                    "type": "websocket.send",
+                    "text": json.dumps({"message": "user not authenticated"}),
+                }
+            )
 
     """
     the below handler is the handle the event
@@ -159,8 +170,9 @@ def handle_group_name_creation(group_name):
 
 
 @database_sync_to_async
-def handle_chat_storage(group_obj, chat_message):
+def handle_chat_storage(group_obj, chat_message, user):
     try:
-        chat_obj = Chat.objects.create(group=group_obj, content=chat_message)
-    except:
+        chat_obj = Chat.objects.create(group=group_obj, message=chat_message, user=user)
+    except Exception as e:
+        print(e)
         print("An exception occurred")
