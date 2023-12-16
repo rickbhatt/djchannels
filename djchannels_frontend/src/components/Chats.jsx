@@ -9,7 +9,7 @@ const Chats = ({ chatMessages }) => {
             className="flex flex-col text-left bg-stone-100 p-3 rounded-md w-fit"
             key={index}
           >
-            <span className="font-semibold text-sm">{msg.user}</span>
+            <span className="font-bold text-sm">{msg.user}</span>
             {msg.message}
           </p>
         ))}
