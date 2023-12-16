@@ -103,7 +103,7 @@ const ChatBox = () => {
   }, [lastJsonMessage]);
 
   return (
-    <div className="flex flex-col items-center p-8 gap-5 w-3/5 max-h-screen overflow-y-auto">
+    <div className="flex flex-col items-center p-8 gap-5 w-3/5 h-screen  max-h-screen overflow-y-auto">
       <div className="flex">
         <h2 className="font-bold text-xl">Chatting in group: {groupName}</h2>
       </div>

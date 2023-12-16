@@ -42,6 +42,7 @@ def handle_login(request):
             "is_active": user.is_active,
             "is_superuser": user.is_superuser,
             "is_staff": user.is_staff,
+            "user_name": user.user_name,
         }
 
         response = Response({"user": user_data}, status=status.HTTP_200_OK)

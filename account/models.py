@@ -15,14 +15,15 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     email = models.EmailField(unique=True)
 
+    user_name = models.CharField(max_length=50, null=True)
+
     date_joined = models.DateTimeField(auto_now_add=True)
 
     last_logged_out = models.DateTimeField(null=True, blank=True)
 
-
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
-    
+
     USERNAME_FIELD = "email"
 
     objects = CustomUserManager()

@@ -29,7 +29,7 @@ const Login = () => {
   };
 
   return (
-    <div className="flex flex-col gap-5 w-96">
+    <div className="flex flex-col justify-center items-center h-screen gap-5 w-96">
       <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-96">
         <Input
           value={formData.email}

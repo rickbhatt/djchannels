@@ -97,13 +97,12 @@ class ChatAsyncConsumer(AsyncConsumer):
 
         parsed_chat_message = json.loads(client_message)
 
+        print(self.scope["user"])
         chat_obj = await handle_chat_storage(
             self.group_obj, parsed_chat_message["message"]
         )
 
         # self.send({"type": "websocket.send", "text": chat_message})
-
-        print(self.scope["user"].is_authenticated)
 
         """
         SENDING MESSAGE TO A GROUP SO THAT

@@ -12,15 +12,26 @@ class CustomUserAdmin(UserAdmin):
     ordering = ("email",)
     fieldsets = (
         (
-            None,
+            "ID",
+            {
+                "fields": ("id",),
+            },
+        ),
+        (
+            "Credentials",
             {
                 "fields": (
-                    "id",
                     "email",
                     "last_login",
                     "last_logged_out",
                     "password",
                 ),
+            },
+        ),
+        (
+            "Personal Information",
+            {
+                "fields": ("user_name",),
             },
         ),
         (
@@ -37,7 +48,7 @@ class CustomUserAdmin(UserAdmin):
     )
     add_fieldsets = (
         (
-            None,
+            "Credentials",
             {
                 "classes": ("wide",),
                 "fields": (
@@ -45,6 +56,11 @@ class CustomUserAdmin(UserAdmin):
                     "password1",
                     "password2",
                 ),
+            },
+            "Personal Information",
+            {
+                "classes": ("wide",),
+                "fields": ("user_name",),
             },
         ),
     )

@@ -10,7 +10,7 @@ function App() {
         <title>Chat App</title>
       </Helmet>
 
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center">
         <Outlet />
       </div>
     </>
