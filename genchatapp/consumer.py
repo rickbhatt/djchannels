@@ -16,9 +16,6 @@ class ChatGenericAsyncConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user = self.scope["user"]
 
-        print(f"{self.channel_layer = }")
-        print(f"{self.channel_name = }")
-
         self.group_name = self.scope["url_route"]["kwargs"]["group_name"].lower()
 
         print(f"{self.group_name  = }")
@@ -38,7 +35,6 @@ class ChatGenericAsyncConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data=None, bytes_data=None):
         client_data = json.loads(text_data)
         client_message = client_data["message"]
-        print(f"message from client side = {client_message} from {self.user.user_name}")
 
         client_data["user"] = self.user.user_name
 
@@ -65,7 +61,6 @@ class ChatGenericAsyncConsumer(AsyncWebsocketConsumer):
         to the group.
         this is same as chat.message
         """
-        print(f"event from chat_message = {event}")
         # sending message to the group
         await self.send(text_data=event["data"])
 
