@@ -98,18 +98,22 @@ const ChatBox = () => {
     setClientMessage(e.target.value);
   };
 
-  useEffect(() => {
+  const chainChats = () => {
     if (lastJsonMessage !== null) {
       setChatMessages((prev) => [...prev, lastJsonMessage]);
     }
+  };
+
+  useEffect(() => {
+    chainChats();
   }, [lastJsonMessage]);
 
   return (
-    <div className="flex flex-col items-center p-8 gap-5 w-3/5 h-screen overflow-y-auto">
+    <div className="flex flex-col items-center p-8 gap-5 w-3/5 max-h-screen overflow-y-clip">
       <div className="flex">
         <h2 className="font-bold text-xl">Chatting in group: {groupName}</h2>
       </div>
-      <div className="flex flex-col gap-3  w-full overflow-y-auto ">
+      <div className="flex flex-col justify-end gap-3 h-screen w-full overflow-y-auto ">
         <Chats chatMessages={chatMessages} />
       </div>
       <form onSubmit={handleSendMessage} className="flex gap-3 w-full">

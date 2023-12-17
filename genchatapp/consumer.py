@@ -62,7 +62,7 @@ class ChatGenericAsyncConsumer(AsyncWebsocketConsumer):
         """
 
     async def disconnect(self, code):
-        await self.close(code=code)
+        await self.close(code=4123)
 
     # this is the event handler of 'chat.message'
     async def chat_message(self, event):
