@@ -18,14 +18,15 @@ class ChatGenericAsyncConsumer(AsyncWebsocketConsumer):
 
         self.group_name = self.scope["url_route"]["kwargs"]["group_name"].lower()
 
-        print(f"{self.group_name  = }")
-
         if self.user.is_authenticated:
             print("authentication successful connection accepted")
 
             self.group_obj = await handle_group_name_creation(self.group_name)
 
             await self.channel_layer.group_add(self.group_name, self.channel_name)
+            await self.channel_layer.group_add(
+                self.user.user_name, self.channel_name
+            )  # for sending individual messages by the admin
 
             await self.accept()
         else:

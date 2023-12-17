@@ -14,13 +14,20 @@ def send_message_from_admin(request, group_name):
     try:
         message = request.data.get("message")
 
+        username = request.data.get("username")
+
         channel_layer = get_channel_layer()
 
         send_data = {"user": "Admin", "message": message}
 
-        async_to_sync(channel_layer.group_send)(
-            group_name, {"type": "chat.message", "data": json.dumps(send_data)}
-        )
+        if username:
+            async_to_sync(channel_layer.group_send)(
+                username, {"type": "chat.message", "data": json.dumps(send_data)}
+            )
+        else:
+            async_to_sync(channel_layer.group_send)(
+                group_name, {"type": "chat.message", "data": json.dumps(send_data)}
+            )
 
         return Response(
             {"message": "sent message to the group"}, status=status.HTTP_200_OK
