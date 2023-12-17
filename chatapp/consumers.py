@@ -142,6 +142,7 @@ class ChatAsyncConsumer(AsyncConsumer):
 
         raise StopConsumer()
 
+    # this is the event handler of 'chat.message'
     async def chat_message(self, event):
         """
         this method handles the sending of message

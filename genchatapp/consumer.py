@@ -1,4 +1,5 @@
 from channels.consumer import SyncConsumer, AsyncConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.exceptions import StopConsumer
 from time import sleep
 import json
@@ -8,80 +9,62 @@ from channels.db import database_sync_to_async
 from django.db import IntegrityError
 
 
-class ChatGenericAsyncConsumer(AsyncConsumer):
+class ChatGenericAsyncConsumer(AsyncWebsocketConsumer):
 
     """this is an async consumer"""
 
-    async def websocket_connect(self, event):
-        print("Websocket Connected...")
-        # print(f"event = {event}")
-        # print("Channel layer =", self.channel_layer)
-        # print("Channel name =", self.channel_name)
+    async def connect(self):
+        self.user = self.scope["user"]
 
-        # ADDINNG STATIC GROUP NAME AND CHANNEL LAYER TO THIS GROUP
-        # await self.channel_layer.group_add("programmers", self.channel_name)
+        print(f"{self.channel_layer = }")
+        print(f"{self.channel_name = }")
 
-        """ADDINNG DYNAMIC GROUP NAME AND CHANNEL LAYER TO THIS GROUP"""
         self.group_name = self.scope["url_route"]["kwargs"]["group_name"].lower()
 
-        await self.channel_layer.group_add(self.group_name, self.channel_name)
+        print(f"{self.group_name  = }")
 
-        self.group_obj = await handle_group_name_creation(self.group_name)
+        if self.user.is_authenticated:
+            print("authentication successful connection accepted")
 
-        await self.send({"type": "websocket.accept"})
+            self.group_obj = await handle_group_name_creation(self.group_name)
 
-    async def websocket_receive(self, event):
-        # print(f"message received from client = {event['text']}")
+            await self.channel_layer.group_add(self.group_name, self.channel_name)
 
-        client_message = event["text"]
+            await self.accept()
+        else:
+            print("authentication unsuccessful connection closed")
+            await self.close(code=4123)
 
-        parsed_chat_message = json.loads(client_message)
+    async def receive(self, text_data=None, bytes_data=None):
+        client_data = json.loads(text_data)
+        client_message = client_data["message"]
+        print(f"message from client side = {client_message} from {self.user.user_name}")
 
-        user = self.scope["user"]
+        client_data["user"] = self.user.user_name
 
-        if user.is_authenticated:
-            parsed_chat_message["user"] = user.user_name
-
+        if self.user.is_authenticated:
             chat_obj = await handle_chat_storage(
-                self.group_obj, parsed_chat_message["message"], user
+                self.group_obj, client_message, self.user
             )
-
-            """
-            SENDING MESSAGE TO A GROUP SO THAT
-            ALL THE CHANNELS IN THE GROUP RECEiVES
-            THE MESSAGE
-            """
 
             await self.channel_layer.group_send(
                 self.group_name,
-                {
-                    "type": "chat.message",  # event name
-                    "message": json.dumps(parsed_chat_message),
-                },
+                {"type": "chat.message", "data": json.dumps(client_data)},
             )
+
         else:
-            await self.send(
-                {
-                    "type": "websocket.send",
-                    "text": json.dumps({"message": "user not authenticated"}),
-                }
-            )
+            await self.send(text_data="Login required")
 
-    """
-    the below handler is the handle the event
-    named in the type. Namning convention is to replace
-    the dot with an underscore in the handler
-    """
+        """
+            SENDING MESSAGE TO A GROUP SO THAT
+            ALL THE CHANNELS IN THE GROUP RECEiVES
+            THE MESSAGE
+        """
 
-    async def websocket_disconnect(self, event):
-        print("Websocket, Disconnect...")
-        # print("Channel layer =", self.channel_layer)
-        # print("Channel name =", self.channel_name)
-        # DICARDING GROUP ON DISCONNECT
-        await self.channel_layer.group_discard(self.group_name, self.channel_name)
+    async def disconnect(self, code):
+        await self.close(code=code)
 
-        raise StopConsumer()
-
+    # this is the event handler of 'chat.message'
     async def chat_message(self, event):
         """
         this method handles the sending of message
@@ -90,7 +73,7 @@ class ChatGenericAsyncConsumer(AsyncConsumer):
         """
         print(f"event from chat_message = {event}")
         # sending message to the group
-        await self.send({"type": "websocket.send", "text": event["message"]})
+        await self.send(text_data=event["data"])
 
 
 @database_sync_to_async
