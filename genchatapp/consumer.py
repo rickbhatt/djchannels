@@ -55,12 +55,6 @@ class ChatGenericAsyncConsumer(AsyncWebsocketConsumer):
         else:
             await self.send(text_data="Login required")
 
-        """
-            SENDING MESSAGE TO A GROUP SO THAT
-            ALL THE CHANNELS IN THE GROUP RECEiVES
-            THE MESSAGE
-        """
-
     async def disconnect(self, code):
         await self.close(code=4123)
 
