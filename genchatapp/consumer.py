@@ -29,6 +29,9 @@ class ChatGenericAsyncConsumer(AsyncWebsocketConsumer):
             )  # for sending individual messages by the admin
 
             await self.accept()
+
+            await self.send_initial_messages()
+
         else:
             print("authentication unsuccessful connection closed")
             await self.close(code=4123)
@@ -54,6 +57,17 @@ class ChatGenericAsyncConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, code):
         await self.close(code=4123)
+
+    async def send_initial_messages(self):
+        # Your logic to send initial messages goes here
+        # For example, you can send a welcome message
+        welcome_message = {
+            "type": "chat.message",
+            "data": json.dumps(
+                {"message": f"Welcome to the chat {self.user.user_name}!"}
+            ),
+        }
+        await self.chat_message(welcome_message)
 
     # this is the event handler of 'chat.message'
     async def chat_message(self, event):
