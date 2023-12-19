@@ -8,6 +8,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "react-query";
 import axiosInstance, { baseWs } from "./axiosInstance";
 import Chats from "./components/Chats";
+import Cookies from "js-cookie";
 
 const ChatBox = () => {
   const [clientMessage, setClientMessage] = useState("");
@@ -26,32 +27,6 @@ const ChatBox = () => {
   const [socketUrl, setSocketUrl] = useState(
     `${baseWs}/genchatapp/async/${groupName}/`
   );
-
-  const {
-    sendMessage,
-    lastMessage,
-    readyState,
-    sendJsonMessage,
-    lastJsonMessage,
-  } = useWebSocket(socketUrl, {
-    onOpen: (e) => {
-      console.log("Connected to django");
-      // sendMessage("Connection is successful, ready to recieve payload");
-    },
-    queryParams: {
-      token: "jkdsakljsasaksdjshduhqhjsjdnasndjdnjsdknsd-rick",
-    },
-    onMessage: (response) => {
-      console.log(response);
-    },
-    onClose: (e) => {
-      // console.log(e);
-    },
-    shouldReconnect: (closeEvent) => true,
-    onError: (e) => {
-      console.log(e);
-    },
-  });
 
   const fetchChat = useQuery(
     ["chat/fetchChat", groupName],
@@ -76,11 +51,34 @@ const ChatBox = () => {
     }
   );
 
+  const socket = useWebSocket(socketUrl, {
+    onOpen: (e) => {
+      console.log("Connected to django");
+      // sendMessage("Connection is successful, ready to recieve payload");
+    },
+    queryParams: {},
+    onMessage: (response) => {
+      // console.log(response);
+    },
+    onClose: (e) => {
+      // console.log(e)
+    },
+    shouldReconnect: (closeEvent) => {
+      if (closeEvent.code !== 1000) {
+        return true;
+      }
+      return false;
+    },
+    onError: (e) => {
+      // console.log(e);
+    },
+  });
+
   const handleSendMessage = (e) => {
     // sendMessage(clientMessage);
     e.preventDefault();
     if (clientMessage !== "") {
-      sendJsonMessage({
+      socket.sendJsonMessage({
         message: clientMessage,
       });
       setClientMessage("");
@@ -98,15 +96,12 @@ const ChatBox = () => {
     setClientMessage(e.target.value);
   };
 
-  const chainChats = () => {
-    if (lastJsonMessage !== null) {
-      setChatMessages((prev) => [...prev, lastJsonMessage]);
-    }
-  };
-
   useEffect(() => {
-    chainChats();
-  }, [lastJsonMessage]);
+    if (socket.lastJsonMessage !== null) {
+      console.log(socket.lastJsonMessage);
+      setChatMessages((prev) => [...prev, socket.lastJsonMessage]);
+    }
+  }, [socket.lastJsonMessage]);
 
   return (
     <div className="flex flex-col items-center p-8 gap-5 w-3/5 h-screen overflow-hidden">

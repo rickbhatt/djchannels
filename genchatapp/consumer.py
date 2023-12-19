@@ -7,6 +7,8 @@ from asgiref.sync import async_to_sync
 from chatapp.models import Chat, Group
 from channels.db import database_sync_to_async
 from django.db import IntegrityError
+from pprint import pprint
+from channels.exceptions import StopConsumer
 
 
 class ChatGenericAsyncConsumer(AsyncWebsocketConsumer):
@@ -14,58 +16,77 @@ class ChatGenericAsyncConsumer(AsyncWebsocketConsumer):
     """this is an async consumer"""
 
     async def connect(self):
-        self.user = self.scope["user"]
+        try:
+            self.user = self.scope["user"]
 
-        self.group_name = self.scope["url_route"]["kwargs"]["group_name"].lower()
+            self.group_name = self.scope["url_route"]["kwargs"]["group_name"].lower()
 
-        if self.user.is_authenticated:
-            print("authentication successful connection accepted")
+            if self.user.is_authenticated:
+                print(
+                    # f"authentication successful connection accepted {self.user.user_name}"
+                )
 
-            self.group_obj = await handle_group_name_creation(self.group_name)
+                # pprint(self.scope)
 
-            await self.channel_layer.group_add(self.group_name, self.channel_name)
-            await self.channel_layer.group_add(
-                self.user.user_name, self.channel_name
-            )  # for sending individual messages by the admin
+                self.group_obj = await handle_group_name_creation(self.group_name)
 
-            await self.accept()
+                await self.channel_layer.group_add(self.group_name, self.channel_name)
+                await self.channel_layer.group_add(
+                    self.user.user_name, self.channel_name
+                )  # for sending individual messages by the admin
 
-            await self.send_initial_messages()
+                await self.accept()
 
-        else:
-            print("authentication unsuccessful connection closed")
-            await self.close(code=4123)
+                await self.send_initial_messages()
+
+            else:
+                # print("authentication unsuccessful connection closed")
+                await self.close(code=4173)
+        except Exception as e:
+            print(f"exception in connect = {e}")
 
     async def receive(self, text_data=None, bytes_data=None):
         client_data = json.loads(text_data)
         client_message = client_data["message"]
 
-        client_data["user"] = self.user.user_name
+        try:
+            if self.user.is_authenticated:
+                client_data["user"] = self.user.user_name
+                chat_obj = await handle_chat_storage(
+                    self.group_obj, client_message, self.user
+                )
 
-        if self.user.is_authenticated:
-            chat_obj = await handle_chat_storage(
-                self.group_obj, client_message, self.user
-            )
+                await self.channel_layer.group_send(
+                    self.group_name,
+                    {"type": "chat.message", "data": json.dumps(client_data)},
+                )
 
-            await self.channel_layer.group_send(
-                self.group_name,
-                {"type": "chat.message", "data": json.dumps(client_data)},
-            )
+            else:
+                await self.send(text_data="Login required")
 
-        else:
-            await self.send(text_data="Login required")
+                await self.close(code=4173)
+        except Exception as e:
+            print(f"exception in receive = {e}")
 
     async def disconnect(self, code):
+        try:
+            await self.channel_layer.group_discard(self.group_name, self.channel_name)
+            if self.user.is_authenticated:
+                await self.channel_layer.group_discard(
+                    self.user.user_name, self.channel_name
+                )  # for sending individual messages by the admin
+        except Exception as e:
+            print(f"exception in disconnect = {e}")
+
         await self.close(code=4123)
+        raise StopConsumer()
 
     async def send_initial_messages(self):
         # Your logic to send initial messages goes here
         # For example, you can send a welcome message
         welcome_message = {
             "type": "chat.message",
-            "data": json.dumps(
-                {"message": f"Welcome to the chat {self.user.user_name}!"}
-            ),
+            "data": json.dumps({"message": f"Welcome to the chat"}),
         }
         await self.chat_message(welcome_message)
 

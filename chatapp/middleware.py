@@ -1,9 +1,14 @@
-from channels.middleware import BaseMiddleware
+from pprint import pprint
+
 import jwt
-from django.conf import settings
-from .exceptions import JWTAuthMiddlewareError
 from channels.db import database_sync_to_async
+from channels.middleware import BaseMiddleware
+from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
+
 from account.models import CustomUser
+
+from .exceptions import JWTAuthMiddlewareError
 
 
 class JWTAuthMiddleware(BaseMiddleware):
@@ -12,27 +17,25 @@ class JWTAuthMiddleware(BaseMiddleware):
 
         # print("middle ware working")
 
-        if "access_token" in scope["cookies"]:
-            access_token = scope["cookies"]["access_token"]
-
-            refresh_token = scope["cookies"]["refresh_token"]
-
+        if "refresh_token" in scope["cookies"]:
+            refresh_token = scope["cookies"].get("refresh_token")
             try:
-                decoded_acccess_token = jwt.decode(
-                    access_token, secret_key, algorithms=["HS256"]
+                decoded_refresh_token = jwt.decode(
+                    refresh_token, secret_key, algorithms=["HS256"]
                 )
 
-                user_obj = await get_user_by_id(decoded_acccess_token["user_id"])
+                user_obj = await get_user_by_id(decoded_refresh_token["user_id"])
 
                 scope["user"] = user_obj
 
-            except jwt.ExpiredSignatureError:
-                pass
-            except jwt.InvalidTokenError:
-                pass
+            except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+                scope["user"] = AnonymousUser()
 
             except Exception as e:
                 raise JWTAuthMiddlewareError(e)
+
+        else:
+            scope["user"] = AnonymousUser()
 
         return await super().__call__(scope, receive, send)
 
@@ -44,4 +47,4 @@ def get_user_by_id(user_id):
 
         return user_obj
     except CustomUser.DoesNotExist:
-        return None
+        return AnonymousUser()
