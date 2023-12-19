@@ -37,7 +37,7 @@ class JWTAuthMiddleware(BaseMiddleware):
         else:
             scope["user"] = AnonymousUser()
 
-        return await super().__call__(scope, receive, send)
+        return None
 
 
 @database_sync_to_async
