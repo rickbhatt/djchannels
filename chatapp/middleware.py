@@ -1,4 +1,5 @@
 from pprint import pprint
+from typing import Any
 
 import jwt
 from channels.db import database_sync_to_async
@@ -14,8 +15,6 @@ from .exceptions import JWTAuthMiddlewareError
 class JWTAuthMiddleware(BaseMiddleware):
     async def __call__(self, scope, receive, send):
         secret_key = settings.SECRET_KEY
-
-        # print("middle ware working")
 
         if "refresh_token" in scope["cookies"]:
             refresh_token = scope["cookies"].get("refresh_token")
@@ -37,7 +36,7 @@ class JWTAuthMiddleware(BaseMiddleware):
         else:
             scope["user"] = AnonymousUser()
 
-        return None
+        return await super().__call__(scope, receive, send)
 
 
 @database_sync_to_async
